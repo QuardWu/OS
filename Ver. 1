@@ -1,0 +1,79 @@
+#include<iostream>
+#include<cstdlib>
+#include<ctime>
+//#define N 300
+
+using namespace std;
+
+class Smoker{
+   public:
+       Smoker(int n){
+           resource = n;
+           count = 0;
+       }
+       int get_resource(){
+           return resource;
+       }
+       void add(){
+           count++;
+       }
+       int get_count(){
+           return count;
+       }
+   private:
+       int resource;
+       int count;
+
+};//a smoker(we need three smokers)
+
+class Agent{
+   public:
+       Agent(){
+       }
+       //tobacco = 1, (cigarette)paper = 2, and match = 3
+   private:
+
+};
+
+int main(){
+
+   int N;
+   cin>>N;
+   //tobacco = 1, (cigarette) paper = 2, and match = 3
+   int com[3]={1,2,3};
+   srand(time(NULL));
+   for(int random=0;random<3;random++){
+       for(int i=0;i<2;i++){
+           if(rand()%2==1){
+               int hold=com[i];
+               com[i]=com[i+1];
+               com[i+1]=hold;
+           }
+       }
+   }
+   Smoker A(com[0]);
+   Smoker B(com[1]);
+   Smoker C(com[2]);
+   for(int n=0;n<N;n++){
+       cout<<"A: "<<A.get_resource()<<endl;
+       cout<<"B: "<<B.get_resource()<<endl;
+       cout<<"C: "<<C.get_resource()<<endl;
+       int supply_resouce = rand()%3+1;
+           //3 threads
+           cout<<supply_resouce<<endl;
+           if(A.get_resource() == supply_resouce){
+               A.add();
+               continue;
+           }
+           if(B.get_resource() == supply_resouce){
+               B.add();
+               continue;
+           }
+           if(C.get_resource() == supply_resouce){
+               C.add();
+               continue;
+           }
+   }
+   //cout<<A.get_count()/N<<" "<<B.get_count()/N<<" "<<C.get_count()/N<<endl;
+   return 0;
+}
