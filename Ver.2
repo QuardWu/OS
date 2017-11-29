@@ -1,0 +1,128 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+ 
+int not_to_supply,smoker_is_ready=0,agent_is_done=0;
+int smoker_r[3]={0,0,0},agent_r[3]={0,0,0};
+int i,over=0;
+ 
+char what[3][20]={"tobacco","cigarette papers","matches"};
+ 
+pthread_mutex_t getting_resource_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t supplying_resource_mutex = PTHREAD_MUTEX_INITIALIZER;
+ 
+void *smoker_action(void *who){
+ 
+    	int resource=-1,num;
+ 
+ 
+    	pthread_mutex_lock(&getting_resource_mutex);
+ 
+    	while(resource == -1){
+            	num = rand()%3;
+            	if(smoker_r[num]==0){
+                    	resource=num;
+                    	smoker_r[num]=1;
+            	}
+    	}
+    	printf("The smoker %d gets the %s.\n\n", who , what[resource] );
+ 
+    	smoker_is_ready++;
+ 
+    	pthread_mutex_unlock(&getting_resource_mutex);
+ 
+    	while(agent_is_done!=3){
+    	}
+ 
+    	if( resource == not_to_supply){
+            	printf("The smoker %d who has %s can go smoking.\n\n", who , what[resource] );
+            	over=1;
+    	}
+/*
+    	else{
+            	printf("The smoker %d cant't go smoking.\n\n",who );
+    	}
+*/
+    	pthread_exit(NULL);
+ 
+}
+ 
+void *agent_action(void *who){
+ 
+    	int num;
+ 
+    	pthread_mutex_lock(&supplying_resource_mutex);
+ 
+    	if(agent_r[0]+agent_r[1]+agent_r[2] <2){ 
+            	while(1){
+                    	num=rand()%3;
+                    	if(agent_r[num]==0){
+                            	printf("The agent is going to supply %s.\n\n", what[num] );
+    	                    	agent_r[num]=1;
+ 
+                            	break;
+                    	}
+            	}
+    	}
+    	else{
+            	for(i=0;i<3;i++){
+                    	if(agent_r[i]==0){
+                            	not_to_supply=i;
+                    	}
+            	}
+    	}
+ 
+    	agent_is_done++;
+ 
+    	pthread_mutex_unlock(&supplying_resource_mutex);
+ 
+    	pthread_exit(NULL);
+}
+ 
+int main(){
+ 
+    	pthread_t smokers[3];
+    	pthread_t agent[3];
+    	int status,person;
+ 
+    	srand( (unsigned)time(NULL));
+ 
+    	for(person=0;person<3;person++){
+ 
+            	printf("Person %d is walking in.\n\n",person);
+ 
+            	status = pthread_create(&smokers[person],NULL,smoker_action,(void*)person);
+/*
+            	if(status!=0){
+                    	printf("Oops.pthread_create retuned error code %d\n\n",status);
+                    	exit(-1);
+            	}
+*/
+    	}
+ 
+    	while(1){
+            	if(smoker_is_ready==3){
+                    	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
+                    	break;
+            	}
+    	}
+ 
+    	for(person=0;person<3;person++){
+ 
+            	status = pthread_create(&agent[person],NULL,agent_action,(void*)person);
+/*
+            	if(status!=0){
+                    	printf("Oops.pthread_create retuned error code %d\n\n",status);
+                    	exit(-1);
+            	}
+*/
+    	}
+ 
+    	while(agent_is_done!=3){
+    	}
+    	while(!over){
+    	}
+ 
+    	exit(NULL);  	
+}
