@@ -1,0 +1,156 @@
+import java.util.Random;
+ 
+public class os {
+ 
+    	public static void main(String[] args) {
+ 
+            	smoker s1 = new smoker(0);
+            	smoker s2 = new smoker(1);
+            	smoker s3 = new smoker(2);
+            	agent a1 = new agent(0);
+            	agent a2 = new agent(1);
+            	agent a3 = new agent(2);
+ 
+            	what.getting_resource();
+ 
+            	s1.start();
+            	s2.start();
+            	s3.start();            	
+ 
+            	a1.start();
+            	a2.start();
+            	a3.start();    	    	
+ 
+    	}
+ 
+}
+ 
+class what{
+ 
+    	static int smoker_r[] = new int[] {0,1,2};
+    	static int num,tmp;
+    	static Random random = new Random();
+ 
+    	static void getting_resource() {
+            	for(int i=0;i<smoker_r.length;i++) {
+                    	num = random.nextInt(3);
+                    	tmp = smoker_r[i];
+    	            	smoker_r[i]=smoker_r[num];
+                    	smoker_r[num]=tmp;
+            	}
+    	}
+ 
+}
+ 
+class smoker extends Thread{
+ 
+    	int person;
+ 
+    	smoker(int n){
+            	person = n;
+    	}   	
+    	/*	
+            	public synchronized void getting_resource() {
+            	while(true) {
+            	num = random.nextInt(3);
+            	if(what.smoker_r[num]==0) {
+            	what.smoker_r[num]=1;
+            	resource = num;
+            	System.out.printf("The smoker gets the %d.\n" , num);
+            	break;
+            	}
+            	}
+            	what.smoker_is_ready++;
+            	}
+            	*/
+ 
+ 
+    	void getting_supply() {
+            	if(agent.not_to_supply==what.smoker_r[person]) {
+                    	System.out.printf("The smoker who has %d can go smoking.\n" , what.smoker_r[person]);
+                    	System.out.println("\n------------------------------\n");
+            	}
+    	}
+ 
+    	public void run(){
+            	System.out.printf("The smoker %d gets the resource %d.\n", person , what.smoker_r[person]);
+            	try{
+                    	Thread.sleep(1000);
+            	}
+            	catch(InterruptedException e){
+            	}
+ 
+            	while(true){
+                    	getting_supply();
+                    	try{
+                            	Thread.sleep(2000);
+                    	}
+                    	catch(InterruptedException e){
+                    	}
+ 
+            	}
+    	}
+ 
+}
+ 
+class agent extends Thread{
+ 
+    	static int num,not_to_supply;
+    	static int agent_r[] = new int[] {0,0,0};
+    	static Random random = new Random();
+    	int person;
+ 
+    	agent(int n){
+            	person = n;
+    	}
+ 
+    	public synchronized static void supplying_resource() {     	
+            	if(agent_r[0]+agent_r[1]+agent_r[2] < 2) {
+                    	while(true) {
+                            	num = random.nextInt(3);
+                            	if(agent_r[num]==0) {
+                                    	System.out.printf
+                                            	("The agent is going to supply %d.\n",num);
+                                    	agent_r[num]=1;
+                                    	break;
+                            	}
+                    	}
+            	}
+            	else {
+                    	for(int i=0;i<3;i++) {
+                            	if(agent_r[i]==0) {
+                                    	not_to_supply=i;
+                            	}
+                    	}
+            	}
+    	}
+ 
+    	void reset(){
+            	agent_r[0]=0;agent_r[1]=0;agent_r[2]=0;
+    	}
+ 
+    	public void run() {       	
+            	try{
+                    	Thread.sleep(1000);
+    	    	}
+            	catch(InterruptedException e){
+            	}
+ 
+            	if(person==0){
+                    	System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            	}
+ 
+            	while(true){
+                    	supplying_resource(); 	
+ 
+                    	try{
+                            	Thread.sleep(2000);
+                    	}
+                    	catch(InterruptedException e){
+                    	}
+ 
+                    	reset();
+            	}
+    	}
+ 
+}
