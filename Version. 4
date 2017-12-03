@@ -1,0 +1,183 @@
+import java.util.Random;
+
+public class os2 {
+
+       public static void main(String[] args) {
+
+               Tool tool = new Tool();
+
+               tool.getting_resource();
+
+               for(int i=0;i<3;i++){
+                       Agent agent = new Agent("Agent " + Integer.toString(i+1),tool); 
+                       agent.start();
+               }
+
+               for(int i=0;i<3;i++){
+                       Smoker smoker = new Smoker("Smoker " + Integer.toString(i+1),tool.smoker_r[i],tool);
+                       smoker.start();
+               }
+               
+       }
+
+}
+
+class Tool{
+
+       int smoker_r[] = new int[] {0,1,2};
+       int num,tmp;
+       Random random = new Random();
+
+       void getting_resource() {
+               for(int i=0;i<smoker_r.length;i++) {
+                       num = random.nextInt(3);
+                       tmp = smoker_r[num];
+                       smoker_r[num]=smoker_r[i];
+                       smoker_r[i]=tmp;
+               }
+       }
+
+       String resource_name(int n){
+               String name = "none";
+               switch(n){
+                       case 0:
+                               name = "tobacco";
+                               break;
+                       case 1:
+                               name = "cigarette papers";
+                               break;
+                       case 2:
+                               name = "matches";
+                               break;
+               }
+               return name;
+       }       
+
+       public synchronized void to_wait(){
+               try{
+                       wait();
+               }
+               catch(InterruptedException e){
+               }
+       }
+
+       public synchronized void wake_up(){
+               notifyAll();
+       }
+
+}
+
+class Smoker extends Thread{
+
+       Tool tool = new Tool();
+       private int resource;
+
+       Smoker(String name,int r,Tool t){
+               setName(name);
+               resource = r;
+               this.tool = t;
+       }       
+       
+       void go_smoking(){
+               try{
+                       Thread.sleep(1000);
+               }
+               catch(InterruptedException e){
+               }
+               System.out.println(getName() + " starts to smoke.");
+               System.out.println("Smoking...");
+               try{
+                       Thread.sleep(2000);
+               }
+               catch(InterruptedException e){
+               }
+               System.out.println( getName() + " finishs smoking.\n");
+               try{
+                       Thread.sleep(1000);
+               }
+               catch(InterruptedException e){
+               }
+       }
+
+       public void run(){
+               
+               System.out.printf("%s is walking and gets the %s.\n\n",getName(),what.resource_name(resource));
+               
+               while(true){
+                       tool.to_wait();
+                       if(resource == Agent.not_to_supply){
+                               go_smoking();
+                               Agent.reset();
+                               tool.wake_up();
+                       }
+                       else{
+                               try{
+                                      Thread.sleep(4500);
+                               }
+                               catch(InterruptedException e){
+                               }
+                       }
+               }
+
+       }
+
+}
+
+class Agent extends Thread{
+
+       Tool tool = new Tool();
+       static int num,not_to_supply=-1;
+       static int agent_r[] = new int[] {0,0,0};
+       static Random random = new Random();
+
+       Agent(String name,Tool t){
+               setName(name);
+               this.tool = t;
+       }
+
+       public synchronized static void supplying_resource() {         
+               if(agent_r[0]+agent_r[1]+agent_r[2] < 2) {
+                       while(true) {
+                               num = random.nextInt(3);
+                               if(agent_r[num]==0) {
+                                       System.out.printf
+                                               ("The agent is going to supply the %s.\n",what.resource_name(num));
+                                       agent_r[num]=1;
+                                       break;
+                               }
+                       }
+               }
+               else {
+                       for(int i=0;i<3;i++) {
+                               if(agent_r[i]==0) {
+                                       not_to_supply=i;
+                               }
+                       }
+               }
+       }
+
+       static void reset(){
+               agent_r[0]=0;agent_r[1]=0;agent_r[2]=0;
+               not_to_supply=-1;
+       }
+
+       public void run() {           
+
+               while(true){
+                       try{
+                               sleep(3000);
+                       }
+                       catch(InterruptedException e){
+                       }
+
+                       supplying_resource();
+               
+                       if(not_to_supply>=0){     
+                               tool.wake_up();
+                       }
+                       tool.to_wait();
+               }
+
+       }
+
+}
