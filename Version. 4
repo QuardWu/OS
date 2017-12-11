@@ -101,7 +101,7 @@ class Smoker extends Thread{
 
        public void run(){
                
-               System.out.printf("%s is walking and gets the %s.\n\n",getName(),what.resource_name(resource));
+               System.out.printf("%s is walking and gets the %s.\n\n",getName(),tool.resource_name(resource));
                
                while(true){
                        tool.to_wait();
