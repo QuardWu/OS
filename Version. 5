@@ -1,0 +1,436 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
+
+public class TobaccoSmoker extends JFrame{
+
+		ImageIcon agentImage = new ImageIcon("Images/agent.jpg");	//建立agent圖示
+		JLabel agentLocation = new JLabel(agentImage);			//建立agent的圖片標籤
+
+		JLabel smokerLocation1 = new JLabel("Smoker 1");	//建立smoker1的文字標籤	
+		JLabel smokerLocation2 = new JLabel("Smoker 2");	//建立smoker2的文字標籤
+		JLabel smokerLocation3 = new JLabel("Smoker 3");	//建立smoker3的文字標籤
+
+		static ImageIcon loadingImage = new ImageIcon("Images/loading.jpg");			//建立loading圖示
+		static ImageIcon tobaccoImage = new ImageIcon("Images/tobacco.jpg");			//建立tobacco圖示
+		static ImageIcon paperImage = new ImageIcon("Images/cigarette_paper.jpg");		//建立cigarette paper圖示
+		static ImageIcon matchesImage = new ImageIcon("Images/matches.jpg");			//建立matches圖示
+
+		static JLabel resourceLocation1 = new JLabel(loadingImage);	//建立smoker1的resource的圖片標籤
+		static JLabel resourceLocation2 = new JLabel(loadingImage);	//建立smoker2的resource的圖片標籤
+		static JLabel resourceLocation3 = new JLabel(loadingImage);	//建立smoker3的resource的圖片標籤
+
+		JButton toStart = new JButton("START!");		//建立開始鍵
+
+		
+		static ImageIcon cardImage = new ImageIcon("Images/card.jpg");	//建立supply卡片背面的圖示	
+
+		static JPanel resourceTable = new JPanel();			//建立supply_table的panel
+		static JLabel resourceLeft = new JLabel(cardImage);		//建立supply1的圖片標籤
+		static JLabel resourceRight = new JLabel(cardImage);		//建立supply2的圖片標籤
+
+		static JLabel smokingArea = new JLabel("Waiting for agent...");//建立抽菸狀態的文字標籤
+
+		static JLabel boardText = new JLabel("Round 1");		//建立局數的文字標籤
+		static JLabel smokerText1 = new JLabel("Smoker 1 : 0 time");	//smoker1抽菸次數的文字標籤
+		static JLabel smokerText2 = new JLabel("Smoker 2 : 0 time");	//smoker2抽菸次數的文字標籤
+		static JLabel smokerText3 = new JLabel("Smoker 3 : 0 time");	//smoker3抽菸次數的文字標籤
+		static JPanel blackboard = new JPanel();			//建立計次板的panel
+
+		static int round=1;			//第幾局
+		static int smoker1=0;		//smoker1抽菸的次數
+		static int smoker2=0;		//smoker2抽菸的次數
+		static int smoker3=0;		//smoker3抽菸的次數
+
+	TobaccoSmoker(){
+//設定圖片大小	
+ 		agentImage.setImage(agentImage.getImage().getScaledInstance(100,120,Image.SCALE_DEFAULT)); 
+	
+ 		loadingImage.setImage(loadingImage.getImage().getScaledInstance(150,100,Image.SCALE_DEFAULT)); 
+
+		tobaccoImage.setImage(tobaccoImage.getImage().getScaledInstance(150,100,Image.SCALE_DEFAULT)); 
+	
+ 		paperImage.setImage(paperImage.getImage().getScaledInstance(150,100,Image.SCALE_DEFAULT)); 
+	
+ 		matchesImage.setImage(matchesImage.getImage().getScaledInstance(150,100,Image.SCALE_DEFAULT));
+
+ 		cardImage.setImage(cardImage.getImage().getScaledInstance(150,100,Image.SCALE_DEFAULT));
+
+//將supply1和supply2的標籤放入table的panel
+		resourceTable.add(resourceLeft);
+		resourceTable.add(resourceRight);
+
+//設定start鍵的監聽器
+		toStart.addActionListener(al);
+
+//計次數面板
+		blackboard.setLayout(new GridBagLayout());
+		blackboard.setBackground(Color.WHITE);
+		GridBagConstraints gbc2 = new GridBagConstraints();
+		gbc2.insets = new Insets(5, 5, 5, 5);
+		gbc2.ipadx = gbc2.ipady = 5;
+
+//第一列
+		gbc2.gridx = 0; gbc2.gridy = 0;
+		gbc2.gridwidth = 1; gbc2.gridheight = 1;
+		gbc2.weightx = gbc2.weighty = 1.0;
+
+		blackboard.add(boardText, gbc2);
+//第二列
+
+		gbc2.gridx = 0; gbc2.gridy = 1;
+		blackboard.add(smokerText1, gbc2);
+//第三列
+		gbc2.gridx = 0; gbc2.gridy = 2;
+		blackboard.add(smokerText2, gbc2);
+//第四列
+		gbc2.gridx = 0; gbc2.gridy = 3;
+		blackboard.add(smokerText3, gbc2);
+
+//主內容面板	
+	
+		JFrame frame = new JFrame("OS project / Tobacco Smoker / Team : 12");
+		Container cp = frame.getContentPane();
+
+		cp.setLayout(new GridBagLayout());
+		cp.setBackground(Color.WHITE);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.ipadx = gbc.ipady = 5;
+//第一列
+		
+		gbc.gridx = 0; gbc.gridy = 0;
+		gbc.gridwidth = 1; gbc.gridheight = 1;
+		gbc.weightx = gbc.weighty = 1.0; 
+
+		cp.add(smokingArea, gbc);
+
+		gbc.gridx = 1; gbc.gridy = 0; 
+		gbc.gridwidth = 1; gbc.gridheight = 1;
+		
+	
+		cp.add(agentLocation, gbc);
+
+		gbc.gridx = 2; gbc.gridy = 0;
+		gbc.gridwidth = 2; gbc.gridheight = 1;
+
+		cp.add(blackboard, gbc);
+//第二列
+		gbc.gridx = 0; gbc.gridy = 1; 	
+		gbc.gridwidth = 3; gbc.gridheight = 1; 	
+		gbc.fill = GridBagConstraints.BOTH;
+		
+		cp.add(resourceTable, gbc);
+//第三列
+		gbc.gridx = 0; gbc.gridy = 2;
+		gbc.gridwidth = 1; gbc.gridheight = 1;
+
+		cp.add(smokerLocation1, gbc);
+
+		gbc.gridx = 1; gbc.gridy = 2;
+
+		cp.add(smokerLocation2, gbc);
+
+		gbc.gridx = 2; gbc.gridy = 2;
+	
+		cp.add(smokerLocation3, gbc);
+
+		gbc.gridx = 3; gbc.gridy = 2;
+		gbc.gridwidth = 1; gbc.gridheight = 1;
+
+		cp.add(toStart, gbc);
+	
+//第四列
+		gbc.gridx = 0; gbc.gridy = 3;
+		cp.add(resourceLocation1, gbc);
+		gbc.gridx = 1; gbc.gridy = 3;
+		cp.add(resourceLocation2, gbc);
+		gbc.gridx = 2; gbc.gridy = 3;
+		cp.add(resourceLocation3, gbc);
+
+		Dimension dim = getToolkit().getScreenSize();
+
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	//	frame.setSize((int)dim.getWidth(),(int)dim.getHeight());
+	//	frame.setLocation(dim.width/2-getWidth()/2, dim.height/2-getHeight()/2);
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+//監聽器
+	ActionListener al = new ActionListener(){
+		public void actionPerformed(ActionEvent e){
+
+			Tool tool = new Tool();
+
+			tool.getting_resource();
+
+			for(int i=0;i<3;i++){
+				Agent agent = new Agent("Agent " + Integer.toString(i+1),tool);
+				agent.start();
+			}
+
+			for(int i=0;i<3;i++){
+				Smoker smoker = new Smoker("Smoker " + Integer.toString(i+1),tool.smoker_r[i],tool,i);
+				smoker.start();				
+			}
+		}
+
+	};
+//更改資源圖片
+	public static void changeResource(int resource, int who){
+		switch(who){
+			case 0:
+				if(resource==0){
+					resourceLocation1.setIcon(tobaccoImage);
+				}
+				else if(resource==1){
+					resourceLocation1.setIcon(paperImage);
+				}
+				else{
+					resourceLocation1.setIcon(matchesImage);
+				}
+				break;
+			case 1:
+				if(resource==0){
+					resourceLocation2.setIcon(tobaccoImage);
+				}
+				else if(resource==1){
+					resourceLocation2.setIcon(paperImage);
+				}
+				else{
+					resourceLocation2.setIcon(matchesImage);
+				}
+				break;
+			case 2:
+				if(resource==0){
+					resourceLocation3.setIcon(tobaccoImage);
+				}
+				else if(resource==1){
+					resourceLocation3.setIcon(paperImage);
+				}
+				else{
+					resourceLocation3.setIcon(matchesImage);
+				}
+				break;
+		}
+	}
+//更改supply圖片
+	public static void changeSupply(int supply, int where){
+		switch(where){
+			case 0:
+				if(supply==0){
+					resourceLeft.setIcon(tobaccoImage);
+				}
+				else if(supply==1){
+					resourceLeft.setIcon(paperImage);
+				}
+				else{
+					resourceLeft.setIcon(matchesImage);
+				}
+				break;
+			case 1:
+				if(supply==0){
+					resourceRight.setIcon(tobaccoImage);
+				}
+				else if(supply==1){
+					resourceRight.setIcon(paperImage);
+				}
+				else{
+					resourceRight.setIcon(matchesImage);
+				}
+				break;
+		}
+	}
+//重新設定
+	public static void resetSupply(){
+		resourceLeft.setIcon(cardImage);
+		resourceRight.setIcon(cardImage);
+		smokingArea.setText("Waiting for agent...");
+		boardText.setText("Round " + ++round );
+	}
+
+//更改計次板內容
+	public static void changeSmoking(int who){
+		smokingArea.setText("Smoker " + ++who + " is smoking...");
+		switch(who){
+			case 1:
+				smokerText1.setText("Smoker 1 : " + ++smoker1 + " times");
+				break;
+			case 2:
+				smokerText2.setText("Smoker 2 : " + ++smoker2 + " times");
+				break;
+			case 3:
+				smokerText3.setText("Smoker 3 : " + ++smoker3 + " times");
+				break;
+		}
+	}
+//程式開始執行點
+	public static void main(String args[]){
+		new TobaccoSmoker();
+	}
+
+	
+}
+//發放資源、取得資源名稱、執行緒控管 的函式
+class Tool{
+
+	int smoker_r[] = new int[] {0,1,2};
+	int num,tmp;
+	Random random = new Random();
+
+	void getting_resource() {
+		for(int i=0;i<smoker_r.length;i++) {
+			num = random.nextInt(3);
+			tmp = smoker_r[num];
+			smoker_r[num]=smoker_r[i];
+			smoker_r[i]=tmp;
+		}
+	}
+
+	String resource_name(int n){
+		String name = "none";
+		switch(n){
+			case 0:
+				name = "tobacco";
+				break;
+			case 1:
+				name = "cigarette papers";
+				break;
+			case 2:
+				name = "matches";
+				break;
+		}
+		return name;
+	}	
+
+	public synchronized void to_wait(){
+		try{
+			wait();
+		}
+		catch(InterruptedException e){
+		}
+	}
+
+	public synchronized void wake_up(){
+		notifyAll();
+	}
+
+}
+//smoker的執行緒
+class Smoker extends Thread{
+
+	Tool tool = new Tool();
+	int resource;
+	int who;
+
+	Smoker(String name,int r,Tool t,int w){
+		setName(name);
+		resource = r;
+		this.tool = t;
+		who = w;
+	}
+
+	void go_smoking(){
+		try{
+			Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+		}
+		TobaccoSmoker.changeSmoking(who);
+		try{
+			Thread.sleep(2000);
+		}
+		catch(InterruptedException e){
+		}
+		try{
+			Thread.sleep(1000);
+		}
+		catch(InterruptedException e){
+		}
+	}
+//執行緒開始執行點
+	public void run(){
+
+		TobaccoSmoker.changeResource(resource,who);
+
+		while(true){
+			tool.to_wait();
+			if(resource == Agent.not_to_supply){
+				go_smoking();
+				Agent.reset();
+				tool.wake_up();
+			}
+			else{
+				try{
+					Thread.sleep(4500);
+				}
+				catch(InterruptedException e){
+				}
+			}
+		}
+
+	}
+
+}
+//agent的執行緒
+class Agent extends Thread{
+
+	Tool tool = new Tool();
+	static int num,not_to_supply=-1;
+	static int agent_r[] = new int[] {0,0,0};
+	static Random random = new Random();
+
+	Agent(String name,Tool t){
+		setName(name);
+		this.tool = t;
+	}
+
+	public synchronized static void supplying_resource() {
+		if(agent_r[0]+agent_r[1]+agent_r[2] < 2) {
+			while(true) {
+				num = random.nextInt(3);
+				if(agent_r[num]==0) {
+					TobaccoSmoker.changeSupply(num, agent_r[0]+agent_r[1]+agent_r[2]);
+					agent_r[num]=1;
+					break;
+				}
+			}
+		}
+		else {
+			for(int i=0;i<3;i++) {
+				if(agent_r[i]==0) {
+					not_to_supply=i;
+				}
+			}
+		}
+	}
+
+	static void reset(){
+		agent_r[0]=0;agent_r[1]=0;agent_r[2]=0;
+		not_to_supply=-1;
+		TobaccoSmoker.resetSupply();
+	}
+//執行緒開始執行點
+	public void run() {
+
+		while(true){
+			try{
+				sleep(3000);
+			}
+			catch(InterruptedException e){
+			}
+
+			supplying_resource();
+
+			if(not_to_supply>=0){
+				tool.wake_up();
+			}
+			tool.to_wait();
+		}
+
+	}
+
+}
