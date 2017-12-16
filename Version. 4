@@ -137,6 +137,23 @@ class Agent extends Thread{
 
        public synchronized static void supplying_resource() {         
                if(agent_r[0]+agent_r[1]+agent_r[2] < 2) {
+                       if(agent_r[0]+agent_r[1]+agent_r[2]==1){
+
+				                    Random rand = new Random();		
+				                    long exponential_distribution_time;
+				
+				                    exponential_distribution_time = (long)((Math.log(1-rand.nextDouble())/(-0.5)*1000));	
+
+				                    if(exponential_distribution_time>=4000) exponential_distribution_time = 4000;
+
+				                    try{
+				                        	sleep(exponential_distribution_time);
+				                     }
+				                    catch(InterruptedException e){
+				                    }
+
+			                 }
+
                        while(true) {
                                num = random.nextInt(3);
                                if(agent_r[num]==0) {
